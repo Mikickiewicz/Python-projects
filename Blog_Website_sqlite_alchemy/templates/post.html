@@ -1,0 +1,75 @@
+{% include "header.html" %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('{{ post.img_url }}')">
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="post-heading">
+          <h1>{{ post.title }}</h1>
+          <h2 class="subheading">{{ post.subtitle }}</h2>
+          <span class="meta">
+            Posted by
+            <a href="#">{{ post.author }}</a>
+            on {{ post.date }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Post Content -->
+<article>
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        {{ post.body|safe }}
+
+        <!-- Edit Post Button (Admin only) -->
+        {% if current_user.is_authenticated and current_user.id == 1 %}
+        <div class="d-flex justify-content-end mb-4">
+          <a class="btn btn-primary" href="{{ url_for('edit_post', post_id=post.id) }}">Edit Post</a>
+        </div>
+        {% endif %}
+
+        <!-- Comments Section -->
+        <section id="comments" class="mt-5">
+          <h3>Comments</h3>
+
+          <!-- Comment Form -->
+          <form method="post" class="mb-4">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+              {{ form.comment.label(class="form-label") }}
+              {{ form.comment(class="form-control", rows="4") }}
+            </div>
+            {{ form.submit(class="btn btn-success") }}
+          </form>
+
+          <!-- Comments List -->
+          <div class="comments-list">
+            {% for comment in comments %}
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title mb-1">{{ comment.user.username if comment.user else "Anonim" }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ comment.created_at.strftime("%Y-%m-%d %H:%M") }}</h6>
+                <p class="card-text">{{ comment.text|safe }}</p>
+
+                <!-- Delete Comment Button (Admin only) -->
+                {% if current_user.is_authenticated and current_user.id == 1 %}
+                <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+              </div>
+            </div>
+            {% else %}
+            <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</article>
+
+{% include "footer.html" %}
